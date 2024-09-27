@@ -50,8 +50,10 @@ class Dataset(tud.Dataset):
         main_cls = row['main_cls']
         minor_cls = row['minor_cls']
         target_name = row['target_name']
+        target_name = target_name if isinstance(target_name, str) else ''
         value = row['Delta_Value']
         seq = row['sequence']
+        seq = seq if isinstance(seq, str) else ''
         # value = row['Delta_pki']
         source_tokens = []
 

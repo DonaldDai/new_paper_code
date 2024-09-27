@@ -2,3 +2,4 @@
 *.pkl
 *.gz
 mmp_finished*/
+pretrain*/
