@@ -1,0 +1,18 @@
+10:21:32: base_trainer.__init__ +23: INFO     Namespace(H=8, N=6, adam_beta1=0.9, adam_beta2=0.98, adam_eps=1e-09, batch_size=512, d_ff=2048, d_model=128, data_path='/home/yichao/zhilian/GenAICode/new_paper_code', data_type='target', dropout=0.1, factor=1.0, label_smoothing=0.0, model_choice='transformer', num_epoch=200, pretrain_path='', save_directory='/home/yichao/zhilian/GenAICode/new_paper_code/pretrain_tar', starting_epoch=1, vocab_path='', warmup_steps=4000)
+10:21:32: base_trainer.__init__ +23: INFO     Namespace(H=8, N=6, adam_beta1=0.9, adam_beta2=0.98, adam_eps=1e-09, batch_size=512, d_ff=2048, d_model=128, data_path='/home/yichao/zhilian/GenAICode/new_paper_code', data_type='target', dropout=0.1, factor=1.0, label_smoothing=0.0, model_choice='transformer', num_epoch=200, pretrain_path='', save_directory='/home/yichao/zhilian/GenAICode/new_paper_code/pretrain_tar', starting_epoch=1, vocab_path='', warmup_steps=4000)
+10:21:35: transformer_trainer.train +263: INFO     Starting EPOCH #1
+10:21:35: transformer_trainer.train +265: INFO     Training start
+10:21:35: transformer_trainer.train +263: INFO     Starting EPOCH #1
+10:21:35: transformer_trainer.train +265: INFO     Training start
+10:21:57: base_trainer.__init__ +23: INFO     Namespace(H=8, N=6, adam_beta1=0.9, adam_beta2=0.98, adam_eps=1e-09, batch_size=512, d_ff=2048, d_model=128, data_path='/home/yichao/zhilian/GenAICode/new_paper_code', data_type='target', dropout=0.1, factor=1.0, label_smoothing=0.0, model_choice='transformer', num_epoch=200, pretrain_path='', save_directory='/home/yichao/zhilian/GenAICode/new_paper_code/pretrain_tar', starting_epoch=1, vocab_path='', warmup_steps=4000)
+10:21:57: base_trainer.__init__ +23: INFO     Namespace(H=8, N=6, adam_beta1=0.9, adam_beta2=0.98, adam_eps=1e-09, batch_size=512, d_ff=2048, d_model=128, data_path='/home/yichao/zhilian/GenAICode/new_paper_code', data_type='target', dropout=0.1, factor=1.0, label_smoothing=0.0, model_choice='transformer', num_epoch=200, pretrain_path='', save_directory='/home/yichao/zhilian/GenAICode/new_paper_code/pretrain_tar', starting_epoch=1, vocab_path='', warmup_steps=4000)
+10:21:59: transformer_trainer.train +263: INFO     Starting EPOCH #1
+10:21:59: transformer_trainer.train +265: INFO     Training start
+10:21:59: transformer_trainer.train +263: INFO     Starting EPOCH #1
+10:21:59: transformer_trainer.train +265: INFO     Training start
+10:23:35: base_trainer.__init__ +23: INFO     Namespace(H=8, N=6, adam_beta1=0.9, adam_beta2=0.98, adam_eps=1e-09, batch_size=512, d_ff=2048, d_model=128, data_path='/home/yichao/zhilian/GenAICode/new_paper_code', data_type='seq', dropout=0.1, factor=1.0, label_smoothing=0.0, model_choice='transformer', num_epoch=200, pretrain_path='', save_directory='/home/yichao/zhilian/GenAICode/new_paper_code/pretrain_tar', starting_epoch=1, vocab_path='', warmup_steps=4000)
+10:23:35: base_trainer.__init__ +23: INFO     Namespace(H=8, N=6, adam_beta1=0.9, adam_beta2=0.98, adam_eps=1e-09, batch_size=512, d_ff=2048, d_model=128, data_path='/home/yichao/zhilian/GenAICode/new_paper_code', data_type='seq', dropout=0.1, factor=1.0, label_smoothing=0.0, model_choice='transformer', num_epoch=200, pretrain_path='', save_directory='/home/yichao/zhilian/GenAICode/new_paper_code/pretrain_tar', starting_epoch=1, vocab_path='', warmup_steps=4000)
+10:23:37: transformer_trainer.train +263: INFO     Starting EPOCH #1
+10:23:37: transformer_trainer.train +263: INFO     Starting EPOCH #1
+10:23:37: transformer_trainer.train +265: INFO     Training start
+10:23:37: transformer_trainer.train +265: INFO     Training start
