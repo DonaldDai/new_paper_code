@@ -94,12 +94,12 @@ class TransformerTrainer(BaseTrainer):
           collate_fn=(md.Dataset.collate_fn))
         return dataloader
 
-    def train_epoch(self, dataloader, model, loss_compute, device):
+    def train_epoch(self, dataloader, model, loss_compute, device, opt):
 
         pad = cfgd.DATA_DEFAULT['padding_value']
         total_loss = 0
         total_tokens = 0
-        for i, batch in enumerate(ul.progress_bar(dataloader, total=len(dataloader))):
+        for i, batch in enumerate(ul.progress_bar(dataloader, total=len(dataloader), disable=(not opt.bar))):
             if should_stop:
                 break
             src, source_length, trg, src_mask, trg_mask, _, _ = batch
@@ -271,7 +271,7 @@ class TransformerTrainer(BaseTrainer):
                                                        SimpleLossCompute(
                                                                  model.module.generator,
                                                                  criterion,
-                                                                 optim), device)
+                                                                 optim), device, opt)
 
             if should_stop:
                 break
