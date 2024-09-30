@@ -39,8 +39,9 @@ def signal_handler(signum, frame):
 
 class TransformerTrainer(BaseTrainer):
 
-    def __init__(self, opt, rank, world_size):
+    def __init__(self, opt, local_rank, rank, world_size):
         super().__init__(opt)
+        self.local_rank = local_rank
         self.rank = rank
         self.world_size = world_size
         self.data_type = opt.data_type
@@ -89,7 +90,7 @@ class TransformerTrainer(BaseTrainer):
     def initialize_dataloader(self, data_path, batch_size, vocab, data_type):
         data = pd.read_csv((os.path.join(data_path, data_type + '.csv')), sep=',')
         dataset = md.Dataset(data=data, vocabulary=vocab, tokenizer=(mv.SMILESTokenizer()), prediction_mode=False)
-        sampler = DistributedSampler(dataset, num_replicas=self.world_size, rank=self.rank)
+        sampler = DistributedSampler(dataset, num_replicas=self.world_size, rank=self.local_rank)
         dataloader = DataLoader(dataset, batch_size, sampler=sampler,
           collate_fn=(md.Dataset.collate_fn))
         return dataloader
@@ -218,8 +219,8 @@ class TransformerTrainer(BaseTrainer):
     def train(self, opt):
         isMain = self.rank == 0
         global should_stop
-        torch.cuda.set_device(self.rank)
-        device = torch.device(f"cuda:{self.rank}")
+        torch.cuda.set_device(self.local_rank)
+        device = torch.device(f"cuda:{self.local_rank}")
         signal.signal(signal.SIGINT, signal_handler)
         signal.signal(signal.SIGTERM, signal_handler)
         # Load vocabulary
@@ -250,13 +251,13 @@ class TransformerTrainer(BaseTrainer):
         # 重新创建优化器或读取先前optim
         optim = self.get_optimization(model, opt)
         # 分布式
-        model = DDP(model,device_ids=[self.rank], output_device=self.rank)
+        model = DDP(model,device_ids=[self.local_rank], output_device=self.local_rank)
 
         #model = model.module
         pad_idx = cfgd.DATA_DEFAULT['padding_value']
         criterion = LabelSmoothing(size=len(vocab), padding_idx=pad_idx, smoothing=opt.label_smoothing)
 
-        print(f'=====before train: {self.rank}/{self.world_size}')
+        print(f'=====before train: {self.local_rank}/{self.rank}/{self.world_size}')
         dist.barrier()
         # Train epoch
         for epoch in range(opt.starting_epoch, opt.starting_epoch + opt.num_epoch):
@@ -264,7 +265,7 @@ class TransformerTrainer(BaseTrainer):
 
             self.LOG.info("Training start")
             model.module.train()
-            print(f'=====before train epoch({epoch}): {self.rank}/{self.world_size}')
+            print(f'=====before train epoch({epoch}): {self.local_rank}/{self.rank}/{self.world_size}')
             dist.barrier()
             loss_epoch_train = self.train_epoch(dataloader_train,
                                                        model.module,

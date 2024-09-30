@@ -18,8 +18,9 @@ if __name__ == "__main__":
 
     dist.init_process_group("nccl")
     rank = int(os.environ["RANK"])
+    local_rank = int(os.environ["LOCAL_RANK"])
     world_size = int(os.environ["WORLD_SIZE"])
-    trainer = TransformerTrainer(opt, rank, world_size)
+    trainer = TransformerTrainer(opt, local_rank, rank, world_size)
         
     # elif opt.model_choice == 'seq2seq':
     #     trainer = Seq2SeqTrainer(opt)
