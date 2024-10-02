@@ -56,14 +56,20 @@ class Vocabulary:
         """Encodes a list of tokens, encoding them in 1-hot encoded vectors."""
         ohe_vect = np.zeros(len(tokens), dtype=np.float32)
         for i, token in enumerate(tokens):
-            ohe_vect[i] = self._tokens[token]
+            try:
+                ohe_vect[i] = self._tokens[token]
+            except KeyError:
+                ohe_vect[i] = self._tokens["default_key"]
         return ohe_vect
 
     def decode(self, ohe_vect):
         """Decodes a one-hot encoded vector matrix to a list of tokens."""
         tokens = []
         for ohv in ohe_vect:
-            tokens.append(self[ohv])
+            try:
+                tokens.append(self[ohv])
+            except KeyError:
+                tokens.append("default_key")
         return tokens
 
     def _add(self, token, idx):

@@ -54,6 +54,7 @@ class Dataset(tud.Dataset):
         value = row['Delta_Value']
         seq = row['sequence']
         seq = seq if isinstance(seq, str) else ''
+        seq = seq.upper()
         # value = row['Delta_pki']
         source_tokens = []
 

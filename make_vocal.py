@@ -88,8 +88,8 @@ if __name__ == "__main__":
         
 
     vocabulary = mv.Vocabulary()
-    # pad=0, start=1, end=2
-    vocabulary.update(["*", "^", "$"])
+    # pad=0, start=1, end=2, default_key for key error
+    vocabulary.update(["*", "^", "$", "default_key"])
     interval_token = []
     # 改为固定区间
     # 连续值区间

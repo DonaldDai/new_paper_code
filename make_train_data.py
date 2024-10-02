@@ -88,14 +88,21 @@ def merge_csv_file(csv_files, output_file='./merged.csv', chunksize=100000):
                 if first_chunk:
                     first_chunk = False
             end = time.time()
-            print(f"===({idx}/{total})write file {end - start}s | {file}")
+            if idx % 1000 == 0:
+                print(f"===({idx + 1}/{total})write file {end - start}s | {file}")
 
 SEED = 42
 
-def gen_train_data(file_path):
+def gen_train_data(file_path, args):
+    SPLIT_RATIO = args.train_ratio
+    output_file = file_path.split('.csv')[0] + '_encoded.csv'
     dfInput=pd.read_csv(file_path)
+    if Path(output_file).exists():
+        print(f'===== exist skip handle for : {output_file}')
+        return
     # 小于5的样本丢弃，不好区分测试集和验证集
     if len(dfInput) < 5:
+        print(f'===== less 5 skip handle for : {output_file}')
         return
     dfInput=dfInput.drop_duplicates(subset=['constantSMILES','fromVarSMILES','toVarSMILES'])
     dfInput=dfInput[['constantSMILES','fromVarSMILES','toVarSMILES','Value_Diff', 'main_cls', 'minor_cls', 'value_type', 'target_name', 'sequence']]
@@ -112,9 +119,7 @@ def gen_train_data(file_path):
         data['Delta_Value'] = data['Delta_Value'].apply(encode_seq)
     elif value_type == 'bool':
         data['Delta_Value'] = data['Delta_Value'].apply(encode_bool)
-    
-    # save encodeed file
-    output_file = file_path.split('.csv')[0] + '_encoded.csv'
+
     LOG.info("Saving encoded property change to file: {}".format(output_file))
     data.to_csv(output_file, index=False)
 
@@ -129,15 +134,15 @@ def gen_train_data(file_path):
     validation.to_csv(os.path.join(parent, "validation.csv"), index=False)
     test.to_csv(os.path.join(parent, "test.csv"), index=False)
 
-def task(file, idx, total):
-    LOG.info(f"\n===({idx}/{total}) handling {file}")
-    gen_train_data(file)
-    print(f"\n===({idx}/{total}) finished {file}")
+def task(file, args, idx, total):
+    if idx % 1000 == 0:
+        LOG.info(f"\n===({idx}/{total}) handling {file}")
+    gen_train_data(file, args)
+    if idx % 1000 == 0:
+        print(f"\n===({idx}/{total}) finished {file}")
 
 if __name__ == "__main__":
-#  constantSMILES、fromVarSMILES 和 toVarSMILES，这些列代表分子结构中的不变部分和可变部分。
     args = parse_args()
-    SPLIT_RATIO = args.train_ratio
 
     root = '/home/yichao/zhilian/GenAICode/new_paper_code/mmp_finished/*'
     csvFiles = glob(f"{root}/*_MMP.csv")
@@ -145,7 +150,7 @@ if __name__ == "__main__":
     p = Pool(int(cpu_count()/2))
     listLen = len(csvFiles)
     for idx, file in enumerate(csvFiles):
-        p.apply_async(task, args=(file, idx + 1, listLen))
+        p.apply_async(task, args=(file, args, idx + 1, listLen))
     p.close()
     p.join()
     end = time.time()

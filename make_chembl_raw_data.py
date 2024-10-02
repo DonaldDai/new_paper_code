@@ -26,6 +26,7 @@ def get_data(conn, type):
                target_components,
                component_sequences
         WHERE  activities.standard_type='{type}' and
+               target_dictionary.chembl_id NOT IN ('CHEMBL218', 'CHEMBL226', 'CHEMBL233', 'CHEMBL234', 'CHEMBL237', 'CHEMBL251', 'CHEMBL256', 'CHEMBL3371', 'CHEMBL4792', 'CHEMBL5113') and
                activities.assay_id=assays.assay_id and
                activities.molregno = compound_structures.molregno and
                activities.molregno = molecule_dictionary.molregno and
