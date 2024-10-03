@@ -4,7 +4,7 @@ import tqdm
 import utils.file as uf
 
 
-def get_logger(name, log_path, level=logging.INFO):
+def get_logger(name, log_path, isMain=False, level=logging.INFO):
     formatter = logging.Formatter(
         fmt="%(asctime)s: %(module)s.%(funcName)s +%(lineno)s: %(levelname)-8s %(message)s",
         datefmt="%H:%M:%S"
@@ -19,10 +19,11 @@ def get_logger(name, log_path, level=logging.INFO):
     logger.addHandler(stream_handler)
 
     # Logging to a file
-    uf.make_directory(log_path, is_dir=False)
-    file_handler = logging.FileHandler(log_path)
-    file_handler.setFormatter(formatter)
-    logger.addHandler(file_handler)
+    if isMain:
+        uf.make_directory(log_path, is_dir=False)
+        file_handler = logging.FileHandler(log_path)
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
 
     return logger
 

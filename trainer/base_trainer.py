@@ -20,7 +20,7 @@ class BaseTrainer(ABC):
         self.save_path = opt.save_directory  # os.path.join('experiments_fine_tune_0215', opt.save_directory)
         if isMain:
             self.summary_writer = SummaryWriter(logdir=(os.path.join(self.save_path, 'tensorboard')))
-        LOG = ul.get_logger(name='train_model', log_path=(os.path.join(self.save_path, 'train_model.log')))
+        LOG = ul.get_logger(name='train_model', log_path=(os.path.join(self.save_path, 'train_model.log')), isMain=isMain)
         self.LOG = LOG
         self.LOG.info(opt)
 
