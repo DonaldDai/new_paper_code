@@ -15,9 +15,11 @@ import preprocess.vocabulary as mv
 
 class BaseTrainer(ABC):
 
-    def __init__(self, opt):
+    def __init__(self, opt, rank):
+        isMain = rank == 0
         self.save_path = opt.save_directory  # os.path.join('experiments_fine_tune_0215', opt.save_directory)
-        self.summary_writer = SummaryWriter(logdir=(os.path.join(self.save_path, 'tensorboard')))
+        if isMain:
+            self.summary_writer = SummaryWriter(logdir=(os.path.join(self.save_path, 'tensorboard')))
         LOG = ul.get_logger(name='train_model', log_path=(os.path.join(self.save_path, 'train_model.log')))
         self.LOG = LOG
         self.LOG.info(opt)
