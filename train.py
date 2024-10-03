@@ -24,5 +24,5 @@ if __name__ == "__main__":
         
     # elif opt.model_choice == 'seq2seq':
     #     trainer = Seq2SeqTrainer(opt)
-    print(f"Starting training on rank {rank} out of {world_size} processes")
+    print(f"Starting training on rank {rank} out of {world_size} processes | {opt.bar}")
     trainer.train(opt)

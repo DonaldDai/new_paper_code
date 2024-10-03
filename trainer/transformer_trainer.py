@@ -40,7 +40,7 @@ def signal_handler(signum, frame):
 class TransformerTrainer(BaseTrainer):
 
     def __init__(self, opt, rank, world_size):
-        super().__init__(opt)
+        super().__init__(opt, rank)
         self.rank = rank
         self.world_size = world_size
         self.data_type = opt.data_type
