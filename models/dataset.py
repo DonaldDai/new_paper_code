@@ -21,7 +21,7 @@ class Dataset(tud.Dataset):
     Source_Mol_Clint,Target_Mol_Clint,Delta_Clint,
     Transformation,Core"""
 
-    def __init__(self, data, vocabulary, tokenizer, prediction_mode=False, use_random=False, data_type=Data_Type.base):
+    def __init__(self, data, vocabulary, tokenizer, prediction_mode=False, use_random=False, data_type=Data_Type.base, seq2vec={}):
         """
 
         :param data: dataframe read from training, validation or test file
@@ -35,6 +35,7 @@ class Dataset(tud.Dataset):
         self._prediction_mode = prediction_mode
         self._use_random = use_random
         self._data_type = data_type
+        self._seq2vec = seq2vec
 
     def __getitem__(self, i):
         """
@@ -55,6 +56,10 @@ class Dataset(tud.Dataset):
         seq = row['sequence']
         seq = seq if isinstance(seq, str) else ''
         seq = seq.upper()
+        try:
+            target_vec = self._seq2vec[seq[:4000]]
+        except KeyError:
+            target_vec = torch.zeros(1280, dtype=torch.float32)
         # value = row['Delta_pki']
         source_tokens = []
 
@@ -84,9 +89,9 @@ class Dataset(tud.Dataset):
             target_encoded = self._vocabulary.encode(target_tokens)
 
             return torch.tensor(source_encoded, dtype=torch.long), torch.tensor(
-                target_encoded, dtype=torch.long), row
+                target_encoded, dtype=torch.long), row, target_vec.clone().detach()
         else:
-            return torch.tensor(source_encoded, dtype=torch.long),  row
+            return torch.tensor(source_encoded, dtype=torch.long), row, target_vec.clone().detach()
 
     def __len__(self):
         return len(self._data)
@@ -95,15 +100,16 @@ class Dataset(tud.Dataset):
     def collate_fn(cls, data_all):
         # sort based on source sequence's length
         data_all.sort(key=lambda x: len(x[0]), reverse=True)
-        is_prediction_mode = True if len(data_all[0]) == 2 else False
+        is_prediction_mode = True if len(data_all[0]) == 3 else False
         if is_prediction_mode:
-            source_encoded, data = zip(*data_all)
+            source_encoded, data, target_vec = zip(*data_all)
             data = pd.DataFrame(data)
         
         else:
-            source_encoded, target_encoded, data = zip(*data_all)
+            source_encoded, target_encoded, data, target_vec = zip(*data_all)
             data = pd.DataFrame(data)
-        
+        target_vec=torch.stack(target_vec)
+
         # maximum length of source sequences
         max_length_source = max([seq.size(0) for seq in source_encoded])
         # print('=====max len', max_length_source)
@@ -132,5 +138,5 @@ class Dataset(tud.Dataset):
             max_length_target = None
             collated_arr_target = None
 
-        return collated_arr_source, source_length, collated_arr_target, src_mask, trg_mask, max_length_target, data
+        return collated_arr_source, source_length, collated_arr_target, src_mask, trg_mask, max_length_target, data, target_vec
 

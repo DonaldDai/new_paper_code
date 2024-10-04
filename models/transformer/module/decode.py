@@ -4,16 +4,16 @@ from torch.autograd import Variable
 from models.transformer.module.subsequent_mask import subsequent_mask
 
 
-def decode(model, src, src_mask, max_len, type):
+def decode(model, src, src_mask, max_len, type, target_vec):
     ys = torch.ones(1)
     ys = ys.repeat(src.shape[0], 1).view(src.shape[0], 1).type_as(src.data)
     # ys shape [batch_size, 1]
-    encoder_outputs = model.encode(src, src_mask)
+    encoder_outputs = model.encode(src, src_mask, target_vec)
     break_condition = torch.zeros(src.shape[0], dtype=torch.bool)
     for i in range(max_len-1):
         with torch.no_grad():
             out = model.decode(encoder_outputs, src_mask, Variable(ys),
-                                      Variable(subsequent_mask(ys.size(1)).type_as(src.data)))
+                                      Variable(subsequent_mask(ys.size(1)).type_as(src.data)), target_vec=target_vec)
 
             log_prob = model.generator(out[:, -1])
             prob = torch.exp(log_prob)

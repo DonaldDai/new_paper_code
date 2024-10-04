@@ -53,7 +53,7 @@ class TransformerTrainer(BaseTrainer):
         if opt.starting_epoch == 1:
             # define model
             model = EncoderDecoder.make_model(vocab_size, vocab_size, N=opt.N,
-                                          d_model=opt.d_model, d_ff=opt.d_ff, h=opt.H, dropout=opt.dropout)
+                                          d_model=opt.d_model, d_ff=opt.d_ff, h=opt.H, dropout=opt.dropout, data_type=self.data_type)
         else:
             # Load model
             file_name = os.path.join(opt.pretrain_path, f'checkpoint/model_{opt.starting_epoch-1}.pt')
@@ -87,9 +87,14 @@ class TransformerTrainer(BaseTrainer):
             optim = self._load_optimizer_from_epoch(model, file_name)
         return optim
 
-    def initialize_dataloader(self, data_path, batch_size, vocab, data_type):
+    def initialize_dataloader(self, data_path, batch_size, vocab, data_type, seq2vec_path=''):
+        seq2vec_dict = {}
+        if seq2vec_path:
+            f_read=open(seq2vec_path,'rb')
+            seq2vec_dict=pkl.load(f_read)
+            f_read.close()
         data = pd.read_csv((os.path.join(data_path, data_type + '.csv')), sep=',')
-        dataset = md.Dataset(data=data, vocabulary=vocab, tokenizer=(mv.SMILESTokenizer()), prediction_mode=False)
+        dataset = md.Dataset(data=data, vocabulary=vocab, tokenizer=(mv.SMILESTokenizer()), prediction_mode=False, data_type=self.data_type, seq2vec=seq2vec_dict)
         sampler = DistributedSampler(dataset, num_replicas=self.world_size, rank=self.local_rank)
         dataloader = DataLoader(dataset, batch_size, sampler=sampler,
           collate_fn=(md.Dataset.collate_fn))
@@ -103,7 +108,7 @@ class TransformerTrainer(BaseTrainer):
         for i, batch in enumerate(ul.progress_bar(dataloader, total=len(dataloader), disable=(not opt.bar))):
             if should_stop:
                 break
-            src, source_length, trg, src_mask, trg_mask, _, _ = batch
+            src, source_length, trg, src_mask, trg_mask, _, _, target_vec = batch
 
             trg_y = trg[:, 1:].to(device)  # skip start token
 
@@ -115,9 +120,10 @@ class TransformerTrainer(BaseTrainer):
             trg = trg[:, :-1].to(device)  # save start token, skip end token
             src_mask = src_mask.to(device)
             trg_mask = trg_mask.to(device)
+            target_vec=target_vec.to(device)
 
             # Compute loss
-            out = model.forward(src, trg, src_mask, trg_mask)
+            out = model.forward(src, trg, src_mask, trg_mask, target_vec)
             loss = loss_compute(out, trg_y, ntokens)
             total_tokens += ntokens
             total_loss += float(loss)
@@ -138,7 +144,7 @@ class TransformerTrainer(BaseTrainer):
         tokenizer = mv.SMILESTokenizer()
         for i, batch in enumerate(ul.progress_bar(dataloader, total=len(dataloader))):
 
-            src, source_length, trg, src_mask, trg_mask, _, _ = batch
+            src, source_length, trg, src_mask, trg_mask, _, _, target_vec = batch
 
             trg_y = trg[:, 1:].to(device)  # skip start token
 
@@ -150,15 +156,16 @@ class TransformerTrainer(BaseTrainer):
             trg = trg[:, :-1].to(device)  # save start token, skip end token
             src_mask = src_mask.to(device)
             trg_mask = trg_mask.to(device)
+            target_vec=target_vec.to(device)
 
             with torch.no_grad():
-                out = model.forward(src, trg, src_mask, trg_mask)
+                out = model.forward(src, trg, src_mask, trg_mask, target_vec)
                 loss = loss_compute(out, trg_y, ntokens).cuda()
                 total_loss += float(loss)
                 total_tokens += ntokens
                 # Decode
                 max_length_target = cfgd.DATA_DEFAULT['max_sequence_length']
-                smiles = decode(model, src, src_mask, max_length_target, type='greedy')
+                smiles = decode(model, src, src_mask, max_length_target, type='greedy', target_vec=target_vec)
 
                 # Compute accuracy
                 for j in range(trg.size()[0]):
@@ -235,8 +242,8 @@ class TransformerTrainer(BaseTrainer):
 
         print(f"=====Availablee GPUs: {torch.cuda.device_count()}")
         # Data loader
-        dataloader_train = self.initialize_dataloader(opt.data_path, opt.batch_size, vocab, 'train')
-        dataloader_validation = self.initialize_dataloader(opt.data_path, opt.batch_size, vocab, 'validation')
+        dataloader_train = self.initialize_dataloader(opt.data_path, opt.batch_size, vocab, 'train', seq2vec_path=opt.seq2vec_path)
+        dataloader_validation = self.initialize_dataloader(opt.data_path, opt.batch_size, vocab, 'validation', seq2vec_path=opt.seq2vec_path)
         # device = torch.device('cuda')
         #device = ut.allocate_gpu(1)
         #device = ut.allocate_gpu_multi()
