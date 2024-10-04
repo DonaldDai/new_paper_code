@@ -15,6 +15,7 @@ if __name__ == "__main__":
     opts.train_opts_transformer(parser)
     parser.add_argument("--data-type", type=str, default='base')
     parser.add_argument("--bar", type=bool, default=False)
+    parser.add_argument("--seq2vec-path", type=str, default='')
     opt = parser.parse_args()
 
     dist.init_process_group("nccl")
