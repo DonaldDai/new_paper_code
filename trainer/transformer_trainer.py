@@ -89,7 +89,7 @@ class TransformerTrainer(BaseTrainer):
 
     def initialize_dataloader(self, data_path, batch_size, vocab, data_type):
         data = pd.read_csv((os.path.join(data_path, data_type + '.csv')), sep=',')
-        dataset = md.Dataset(data=data, vocabulary=vocab, tokenizer=(mv.SMILESTokenizer()), prediction_mode=False)
+        dataset = md.Dataset(data=data, vocabulary=vocab, tokenizer=(mv.SMILESTokenizer()), prediction_mode=False, data_type=self.data_type)
         sampler = DistributedSampler(dataset, num_replicas=self.world_size, rank=self.local_rank)
         dataloader = DataLoader(dataset, batch_size, sampler=sampler,
           collate_fn=(md.Dataset.collate_fn))
