@@ -10,6 +10,7 @@ from multiprocessing import Pool
 import os
 
 CHUNK_SIZE = 32
+CUT_SIZE = 2000
 
 # 目录路径
 directory = Path("esm_temp")
@@ -34,7 +35,7 @@ for idx, file in enumerate(csvFiles):
     seq = seq if isinstance(seq, str) else ''
     seq = seq.upper()
     # 过长的要截断
-    seq = seq[:4000]
+    seq = seq[:CUT_SIZE]
     print(f'==chunk_data len: {len(chunk_data)}', seq)
     if not bool(seq):
         continue
@@ -83,7 +84,7 @@ def task(chunk_data, idx, total):
     print(f"chunk esm 文件({idx}/{total})总共用时{sub_end - sub_start}秒")
 
 start = time.time()
-p = Pool(2)
+p = Pool(1)
 listLen = len(data)
 for idx, chunk_data in enumerate(data):
     p.apply_async(task, args=(chunk_data, idx + 1, listLen))
