@@ -5,6 +5,13 @@ import torch.distributed as dist
 import configuration.opts as opts
 from trainer.transformer_trainer import TransformerTrainer
 # from trainer.seq2seq_trainer import Seq2SeqTrainer
+from common.utils import Data_Type
+
+def data_type(t):
+    try:
+        return Data_Type[t]
+    except KeyError:
+        raise argparse.ArgumentTypeError(f"{t} is not a valid data type")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -13,7 +20,7 @@ if __name__ == "__main__":
 
     opts.train_opts(parser)
     opts.train_opts_transformer(parser)
-    parser.add_argument("--data-type", type=str, default='base')
+    parser.add_argument("--data-type", type=data_type, default='base')
     parser.add_argument("--bar", type=bool, default=False)
     parser.add_argument("--seq2vec-path", type=str, default='')
     opt = parser.parse_args()
