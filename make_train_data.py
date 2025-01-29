@@ -23,6 +23,7 @@ from const import seq_interval, bool_interval
 from sklearn.model_selection import train_test_split
 from multiprocessing import Pool, cpu_count
 import time
+from const import ROOT
 # 处理的是分解后的分子结构，用于更复杂的化学反应建模，使用SMARTS标记定义了分子中的可变和不变部分。
 global LOG
 LOG = ul.get_logger("preprocess", "experiments/preprocess.log")
@@ -144,7 +145,7 @@ def task(file, args, idx, total):
 if __name__ == "__main__":
     args = parse_args()
 
-    root = '/home/yichao/zhilian/GenAICode/new_paper_code/mmp_finished/*'
+    root = f'{ROOT}/mmp_finished/*'
     csvFiles = glob(f"{root}/*_MMP.csv")
     start = time.time()
     p = Pool(int(cpu_count()/2))

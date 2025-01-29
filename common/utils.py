@@ -52,7 +52,7 @@ def format_zero(val):
 
 def check_seq_or_bool(df_series) -> str:
     for v in df_series:
-        if v !=0 or v!= 1:
+        if v !=0 and v!= 1:
             return 'seq'
     return 'bool'
 
@@ -277,3 +277,5 @@ class Data_Type(Enum):
     seq = 'seq'
     seq_esm = 'seq_esm'
     all = 'all'
+
+CUT_SIZE = 4382

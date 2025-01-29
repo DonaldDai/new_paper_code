@@ -16,23 +16,25 @@ import numpy as np
 import datetime
 import shutil
 from common.utils import create_MMP
+from const import ROOT
 
 def fmt_bingdb_value(x):
         ret = np.nan
         try:
-            ret  = 9 - np.log10(x)
+            ret = np.log10(x)
             if math.isinf(ret):
                 return np.nan
             return ret
         except Exception as e:
             print(f'===========fmt error', x)
             return np.nan
+
 def task(key, idx, total):
     print(f'===({idx}/{total}) handle {key}')
     rootDir=os.getcwd()
     create_MMP_p=partial(create_MMP, workDir=rootDir, target_dir="mmp_finished_b")
     fmt_minor_cls=key.split(' (')[0]
-    df = pd.read_csv("/home/yichao/zhilian/BindingDB_All_202407.csv")
+    df = pd.read_csv(f"{ROOT}/BindingDB.csv")
     all_targets = df['Target Name'].unique()
     main_cls = 'activity'
     print(f'===({idx}/{total}) {main_cls}|{fmt_minor_cls} target counts: {len(all_targets)}')
@@ -46,7 +48,11 @@ def task(key, idx, total):
             print(f'=== No seq for {target_name}')
             continue
         seq = seq_df.iloc[0]
-        create_MMP_p(filtered_df, "/home/yichao/zhilian/BindingDB_All_202407.csv", 'activity', fmt_minor_cls, target_name, idx, seq, fmt_bingdb_value, keys=['Ligand SMILES', key])
+        create_MMP_p(filtered_df, f"{ROOT}/BindingDB.csv", 'activity', fmt_minor_cls, target_name, idx, seq, fmt_bingdb_value, keys=['Ligand SMILES', key])
+
+def error_handler(exception):
+    print(f"Error caught: {exception}")
+    
 
 def handle_bindingdb():
     # BDingDB 数据处理
@@ -56,7 +62,7 @@ def handle_bindingdb():
     listLen = len(list)
     for idx, key in enumerate(list):
         # task(key, idx + 1, listLen)
-        p.apply_async(task, args=(key, idx + 1, listLen))
+        p.apply_async(task, args=(key, idx + 1, listLen), error_callback=error_handler)
     p.close()
     p.join()
     end = time.time()

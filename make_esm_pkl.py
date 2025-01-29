@@ -8,12 +8,14 @@ import re
 from pathlib import Path
 from multiprocessing import Pool
 import os
+from const import ROOT
+from common.utils import CUT_SIZE
 
 CHUNK_SIZE = 32
-CUT_SIZE = 2000
 
+TAR_PATH = 'esm_temp'
 # 目录路径
-directory = Path("esm_temp")
+directory = Path(TAR_PATH)
 
 # 创建新目录
 if not directory.exists():
@@ -24,7 +26,7 @@ print('start')
 start = time.time()
 data = []
 chunk_data = []
-csvFiles = glob(f"/home/yichao/zhilian/GenAICode/new_paper_code/mmp_finished/*/*_MMP.csv")
+csvFiles = glob(f"{ROOT}/mmp_finished/*/*_MMP.csv")
 total = len(csvFiles)
 for idx, file in enumerate(csvFiles):
     print(f'===handling({idx}/{total}) {file}')
@@ -48,7 +50,7 @@ print(f'===protrains chunk count: {len(data)}')
 
 def task(chunk_data, idx, total):
     print(f"==handling({idx}/{total}) ")
-    tar_filename = f'./esm_temp/seq_vec_dict_{idx}.pkl'
+    tar_filename = f'./{TAR_PATH}/seq_vec_dict_{idx}.pkl'
     if os.path.exists(tar_filename):
         print(f"File exists, skip. {tar_filename}")
         return

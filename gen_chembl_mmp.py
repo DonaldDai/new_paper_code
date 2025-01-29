@@ -9,6 +9,7 @@ from functools import partial
 import numpy as np
 import datetime
 from common.utils import create_MMP
+from const import ROOT
 
 def get_chembl_main_cls(minor_cls) -> str:
     ret = 'unknown'
@@ -68,7 +69,7 @@ def task(file, rootDir, idx, total):
     minor_cls = get_chembl_minor_cls(file)
     fmt_fn = get_fmt(file)
     main_cls = get_chembl_main_cls(minor_cls)
-    df['fmt_target_name'] = df['target_name'] + df['target_organism']
+    df['fmt_target_name'] = df['target_name'] + ' ' + df['target_organism']
     all_targets = df['fmt_target_name'].unique()
     print(f'===({idx}/{total}){main_cls}|{minor_cls} target counts: {len(all_targets)}')
     for idx, target_name in enumerate(all_targets):
@@ -82,13 +83,12 @@ def task(file, rootDir, idx, total):
 
 def handle_chembl():
     # ChemBl数据处理
-    rootDir=os.getcwd()
-    csvFiles=glob(f"{rootDir}/raw_chembl_data/*.csv")
+    csvFiles=glob(f"{ROOT}/raw_chembl_data/*.csv")
     start = time.time()
     p = Pool(int(cpu_count()/2))
     listLen = len(csvFiles)
     for idx, file in enumerate(csvFiles):
-        p.apply_async(task, args=(file, rootDir, idx + 1, listLen))
+        p.apply_async(task, args=(file, ROOT, idx + 1, listLen))
     p.close()
     p.join()
     end = time.time()

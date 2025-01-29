@@ -22,6 +22,7 @@ from glob import glob
 import generate as gn
 from const import seq_interval, bool_interval
 from common.utils import Data_Type
+from const import ROOT
 
 # 处理的是分解后的分子结构，用于更复杂的化学反应建模，使用SMARTS标记定义了分子中的可变和不变部分。
 global LOG
@@ -96,7 +97,7 @@ if __name__ == "__main__":
     interval_token.extend(seq_interval)
     # 布尔值区间
     interval_token.extend(bool_interval)
-    csvFiles = glob(f"/home/yichao/zhilian/GenAICode/new_paper_code/mmp_finished/*/*_MMP.csv")
+    csvFiles = glob(f"{ROOT}/mmp_finished/*/*_MMP.csv")
     # 记录smiles main_cls minor_cls
     total = len(csvFiles)
     for idx, file in enumerate(csvFiles):

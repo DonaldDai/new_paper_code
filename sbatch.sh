@@ -25,7 +25,8 @@ cd /work/09735/yichao/ls6/zhilian/new_paper_code
 MASTER_ADDR=$(hostname)
 
 # 执行PyTorch分布式训练命令
-# 端口最好使用随机的
-# seq,base,target,seq_esm
+
+# seq,base,target_name,seq_esm
 t="seq"
-srun bash -c "torchrun --nproc_per_node=3 --nnodes=4 --node_rank=\$SLURM_NODEID --master_addr=$MASTER_ADDR --master_port=29500 train.py --model-choice transformer --num-epoch 200 --data-type ${t} --data-path /work/09735/yichao/ls6/zhilian/new_paper_code  --save-directory /work/09735/yichao/ls6/zhilian/new_paper_code/pretrain_${t}_cut"
+bs=5
+srun bash -c "torchrun --nproc_per_node=3 --nnodes=4 --node_rank=\$SLURM_NODEID --master_addr=$MASTER_ADDR --master_port=29500 train.py --model-choice transformer --num-epoch 200 --batch-size ${bs} --data-type ${t} --data-path /work/09735/yichao/ls6/zhilian/new_paper_code --save-directory /work/09735/yichao/ls6/zhilian/new_paper_code/pretrain_${t}_cut --seq2vec-path /work/09735/yichao/ls6/zhilian/new_paper_code/seq2vec.pkl"

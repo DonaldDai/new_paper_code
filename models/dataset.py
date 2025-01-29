@@ -11,7 +11,7 @@ from torch.autograd import Variable
 
 from models.transformer.module.subsequent_mask import subsequent_mask
 
-from common.utils import Data_Type
+from common.utils import Data_Type, CUT_SIZE
 
 class Dataset(tud.Dataset):
     """Custom PyTorch Dataset that takes a file containing
@@ -56,10 +56,7 @@ class Dataset(tud.Dataset):
         seq = row['sequence']
         seq = seq if isinstance(seq, str) else ''
         seq = seq.upper()
-        try:
-            target_vec = self._seq2vec[seq[:4000]]
-        except KeyError:
-            target_vec = torch.zeros(1280, dtype=torch.float32)
+        target_vec = torch.zeros(1280, dtype=torch.float32)
         # value = row['Delta_pki']
         source_tokens = []
 
@@ -76,12 +73,17 @@ class Dataset(tud.Dataset):
             source_tokens.extend(list(target_name))
         elif self._data_type == Data_Type.seq:
             source_tokens.extend(list(seq))
+        elif self._data_type == Data_Type.seq_esm:
+            try:
+                target_vec = self._seq2vec[seq[:CUT_SIZE]]
+            except KeyError:
+                target_vec = torch.zeros(1280, dtype=torch.float32)
         # 接着constant
         source_tokens.extend(self._tokenizer.tokenize(sourceConstant)) ## add source constant SMILES token
         source_encoded = self._vocabulary.encode(source_tokens)
-            
         
-        # print(source_tokens,'\n=====\n', source_encoded)
+        # DEBUG
+        # print('\n=========================\n', source_tokens,'\n=====\n', len(target_vec),target_vec, '\n=====\n', source_encoded, '\n=========================\n\n\n')
         # tokenize and encode target smiles if it is for training instead of evaluation
         if not self._prediction_mode:
             target_smi = row['toVarSMILES']
